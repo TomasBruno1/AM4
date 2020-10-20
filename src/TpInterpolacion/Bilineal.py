@@ -54,7 +54,7 @@ def zoom_in_bilineal(array_in):
                                                   * Dx_prev)
 
     # Guardamos la imagen en disco
-    plt.imsave('test_bigger.png', array_out)
+    plt.imsave('test_bigger_bilineal.png', array_out)
 
     # Mostramos la imagen en pantalla
     plt.imshow(array_out, vmin=0, vmax=1)
@@ -112,7 +112,7 @@ def zoom_out_bilineal(array_in):
                                                   * Dx_prev)
 
     # Guardamos la imagen en disco
-    plt.imsave('test_bigger.png', array_out)
+    plt.imsave('test_smaller_bilineal.png', array_out)
 
     # Mostramos la imagen en pantalla
     plt.imshow(array_out, vmin=0, vmax=1)

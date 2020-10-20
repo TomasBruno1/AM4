@@ -28,7 +28,7 @@ def zoom_in_closest(img):
                 if (resized_image[i, j][k] <= 0): resized_image[i, j][k] = 0
 
     # Guardamos la imagen en disco
-    plt.imsave('test_bigger.png', resized_image)
+    plt.imsave('test_bigger_closest.png', resized_image)
 
     # Mostramos la imagen en pantalla
     plt.imshow(resized_image, vmin=0, vmax=1)
@@ -61,7 +61,7 @@ def zoom_out_closest(img):
                 if (resized_image[i, j][k] <= 0): resized_image[i, j][k] = 0
 
     # Guardamos la imagen en disco
-    plt.imsave('test_bigger.png', resized_image)
+    plt.imsave('test_smaller_closest.png', resized_image)
 
     # Mostramos la imagen en pantalla
     plt.imshow(resized_image, vmin=0, vmax=1)
@@ -69,5 +69,4 @@ def zoom_out_closest(img):
     return resized_image
 
 
-for i in range(5):
-    img = zoom_out_closest(img)
+img = zoom_out_closest(img)

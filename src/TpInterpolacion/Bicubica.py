@@ -62,14 +62,14 @@ def zoom_in_bicubic(img):
 
                 array_out[i, j] = [blue, green, red]
     # Guardamos la imagen en disco
-    plt.imsave('test_bigger.png', array_out)
+    plt.imsave('test_bigger_bicubic.png', array_out)
 
     # Mostramos la imagen en pantalla
     plt.imshow(array_out, vmin=0, vmax=1)
     plt.show()
 
 
-#zoom_in_bicubic(img)
+zoom_in_bicubic(img)
 
 
 def zoom_out_bicubic(img):
@@ -119,7 +119,7 @@ def zoom_out_bicubic(img):
 
                 array_out[i, j] = [blue, green, red]
     # Guardamos la imagen en disco
-    plt.imsave('test_bigger.png', array_out)
+    plt.imsave('test_smaller_bicubic.png', array_out)
 
     # Mostramos la imagen en pantalla
     plt.imshow(array_out, vmin=0, vmax=1)
