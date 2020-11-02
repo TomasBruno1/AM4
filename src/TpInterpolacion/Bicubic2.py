@@ -9,7 +9,21 @@ def bicubic(image, ratio, a):
     # Get image size
     H, W, C = image.shape
 
-    image = padding(image, H, W, C)
+    zimg = np.zeros((H + 4, W + 4, C))
+    zimg[2:H + 2, 2:W + 2, :C] = img
+    # Pad the first/last two col and row
+    zimg[2:H + 2, 0:2, :C] = img[:, 0:1, :C]
+    zimg[H + 2:H + 4, 2:W + 2, :] = img[H - 1:H, :, :]
+    zimg[2:H + 2, W + 2:W + 4, :] = img[:, W - 1:W, :]
+    zimg[0:2, 2:W + 2, :C] = img[0:1, :, :C]
+    # Pad the missing eight points
+    zimg[0:2, 0:2, :C] = img[0, 0, :C]
+    zimg[H + 2:H + 4, 0:2, :C] = img[H - 1, 0, :C]
+    zimg[H + 2:H + 4, W + 2:W + 4, :C] = img[H - 1, W - 1, :C]
+    zimg[0:2, W + 2:W + 4, :C] = img[0, W - 1, :C]
+
+    image = zimg
+
     C = 3
     # Create new image
     dH = math.floor(H * ratio)
@@ -18,9 +32,6 @@ def bicubic(image, ratio, a):
 
     h = 1 / ratio
 
-    print('Start bicubic interpolation')
-    print('It will take a little while...')
-    inc = 0
     for c in range(C):
         for j in range(dH):
             for i in range(dW):
@@ -48,13 +59,6 @@ def bicubic(image, ratio, a):
                 mat_r = np.matrix([[u(y1, a)], [u(y2, a)], [u(y3, a)], [u(y4, a)]])
                 pixel = np.dot(np.dot(mat_l, mat_m), mat_r)
                 dst[j, i, c] = pixel
-
-                # Print progress
-                inc = inc + 1
-                sys.stderr.write('\r\033[K' + get_progressbar_str(inc / (C * dH * dW)))
-                sys.stderr.flush()
-    sys.stderr.write('\n')
-    sys.stderr.flush()
     return dst
 
 
@@ -73,17 +77,6 @@ def padding(img, H, W, C):
     zimg[H + 2:H + 4, W + 2:W + 4, :C] = img[H - 1, W - 1, :C]
     zimg[0:2, W + 2:W + 4, :C] = img[0, W - 1, :C]
     return zimg
-
-
-def get_progressbar_str(progress):
-    END = 170
-    MAX_LEN = 30
-    BAR_LEN = int(MAX_LEN * progress)
-    return ('Progress:[' + '=' * BAR_LEN +
-            ('>' if BAR_LEN < MAX_LEN else '') +
-            ' ' * (MAX_LEN - BAR_LEN) +
-            '] %.1f%%' % (progress * 100.))
-
 
 def u(s, a):
     if (abs(s) >= 0) & (abs(s) <= 1):

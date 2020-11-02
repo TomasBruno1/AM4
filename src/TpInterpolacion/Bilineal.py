@@ -8,56 +8,51 @@ img = plt.imread("test_1.jpg")
 # Interpolar valores desconocidos
 def zoom_in_bilineal(array_in):
     # Obtener la dimensión de la imagen
-    height_in, width_in, t = img.shape
+    height, width, t = img.shape
     t = 3
 
     # Tamaño nuevo
-    width_out = width_in * 2
-    height_out = height_in * 2
+    new_width = width * 2
+    new_height = height * 2
 
     # Creamos una imagen negra del doble de tamaño
-    array_out = np.zeros((height_out, width_out, t))
+    resized_image = np.zeros((new_height, new_width, t))
 
-    for i in range(height_out):
-        for j in range(width_out):
-            # Relative coordinates of the pixel in output space
-            x_out = j / width_out
-            y_out = i / height_out
+    for i in range(new_height):
+        for j in range(new_width):
+            # Obtenemos la posicion relativa en la nueva imagen
+            new_x = j / new_width
+            new_y = i / new_height
 
-            # Corresponding absolute coordinates of the pixel in input space
-            x_in = (x_out * width_in)
-            y_in = (y_out * height_in)
+            # Buscamos las coordenadas reales en la imagen
+            x = (new_x * width)
+            y = (new_y * height)
 
-            # Nearest neighbours coordinates in input space
-            x_prev = int(np.floor(x_in))
-            x_next = x_prev + 1
-            y_prev = int(np.floor(y_in))
-            y_next = y_prev + 1
+            # Obtenemos los 2x2 más cercanos
+            x1 = int(np.floor(x))
+            x2 = x1 + 1
+            y1 = int(np.floor(y))
+            y2 = y1 + 1
 
-            # Sanitize bounds - no need to check for < 0
-            x_prev = min(x_prev, width_in - 1)
-            x_next = min(x_next, width_in - 1)
-            y_prev = min(y_prev, height_in - 1)
-            y_next = min(y_next, height_in - 1)
+            # Corregimos en caso de que se pase
+            x1 = min(x1, width - 1)
+            x2 = min(x2, width - 1)
+            y1 = min(y1, height - 1)
+            y2 = min(y2, height - 1)
 
-            # Distances between neighbour nodes in input space
-            Dy_next = y_next - y_in
-            Dy_prev = 1. - Dy_next  # because next - prev = 1
-            Dx_next = x_next - x_in
-            Dx_prev = 1. - Dx_next  # because next - prev = 1
-
-            # Interpolate over 3 RGB layers
-            for c in range(3):
-                array_out[i][j][c] = Dy_prev * (
-                        array_in[y_next][x_prev][c] * Dx_next + array_in[y_next][x_next][c] * Dx_prev) \
-                                     + Dy_next * (array_in[y_prev][x_prev][c] * Dx_next + array_in[y_prev][x_next][c]
-                                                  * Dx_prev)
+            # Interpola la imagen con los 2x2 mas cercanos
+            for k in range(3):
+                resized_image[i][j][k] = (1. - (y2 - y)) * (
+                        array_in[y2][x1][k] * (x2 - x) + array_in[y2][x2][k] * (1. - (x2 - x))) \
+                                         + (y2 - y) * (array_in[y1][x1][k] * (x2 - x) + array_in[y1][x2][k]
+                                                       * (1. - (x2 - x)))
 
     # Guardamos la imagen en disco
-    plt.imsave('test_bigger_bilineal.png', array_out)
+    plt.imsave('test_bigger_bilineal.png', resized_image)
 
     # Mostramos la imagen en pantalla
-    plt.imshow(array_out, vmin=0, vmax=1)
+    print('Zoom in bilineal')
+    plt.imshow(resized_image, vmin=0, vmax=1)
     plt.show()
 
 
@@ -66,56 +61,51 @@ zoom_in_bilineal(img)
 
 def zoom_out_bilineal(array_in):
     # Obtener la dimensión de la imagen
-    height_in, width_in, t = img.shape
+    height, width, t = img.shape
     t = 3
 
     # Tamaño nuevo
-    width_out = width_in // 2
-    height_out = height_in // 2
+    new_width = width // 2
+    new_height = height // 2
 
-    # Creamos una imagen negra del doble de tamaño
-    array_out = np.zeros((height_out, width_out, t))
+    # Creamos una imagen negra de la mitad del tamaño
+    resized_image = np.zeros((new_height, new_width, t))
 
-    for i in range(height_out):
-        for j in range(width_out):
-            # Relative coordinates of the pixel in output space
-            x_out = j / width_out
-            y_out = i / height_out
+    for i in range(new_height):
+        for j in range(new_width):
+            # Obtenemos la posicion relativa en la nueva imagen
+            new_x = j / new_width
+            new_y = i / new_height
 
-            # Corresponding absolute coordinates of the pixel in input space
-            x_in = (x_out * width_in)
-            y_in = (y_out * height_in)
+            # Buscamos las coordenadas reales en la imagen
+            x = (new_x * width)
+            y = (new_y * height)
 
-            # Nearest neighbours coordinates in input space
-            x_prev = int(np.floor(x_in))
-            x_next = x_prev + 1
-            y_prev = int(np.floor(y_in))
-            y_next = y_prev + 1
+            # Obtenemos los 2x2 más cercanos
+            x1 = int(np.floor(x))
+            x2 = x1 + 1
+            y1 = int(np.floor(y))
+            y2 = y1 + 1
 
-            # Sanitize bounds - no need to check for < 0
-            x_prev = min(x_prev, width_in - 1)
-            x_next = min(x_next, width_in - 1)
-            y_prev = min(y_prev, height_in - 1)
-            y_next = min(y_next, height_in - 1)
+            # Corregimos en caso de que se pase
+            x1 = min(x1, width - 1)
+            x2 = min(x2, width - 1)
+            y1 = min(y1, height - 1)
+            y2 = min(y2, height - 1)
 
-            # Distances between neighbour nodes in input space
-            Dy_next = y_next - y_in
-            Dy_prev = 1. - Dy_next  # because next - prev = 1
-            Dx_next = x_next - x_in
-            Dx_prev = 1. - Dx_next  # because next - prev = 1
-
-            # Interpolate over 3 RGB layers
-            for c in range(3):
-                array_out[i][j][c] = Dy_prev * (
-                        array_in[y_next][x_prev][c] * Dx_next + array_in[y_next][x_next][c] * Dx_prev) \
-                                     + Dy_next * (array_in[y_prev][x_prev][c] * Dx_next + array_in[y_prev][x_next][c]
-                                                  * Dx_prev)
+            # Interpola la imagen con los 2x2 mas cercanos
+            for k in range(3):
+                resized_image[i][j][k] = (1. - (y2 - y)) * (
+                        array_in[y2][x1][k] * (x2 - x) + array_in[y2][x2][k] * (1. - (x2 - x))) \
+                                         + (y2 - y) * (array_in[y1][x1][k] * (x2 - x) + array_in[y1][x2][k]
+                                                       * (1. - (x2 - x)))
 
     # Guardamos la imagen en disco
-    plt.imsave('test_smaller_bilineal.png', array_out)
+    plt.imsave('test_smaller_bilineal.png', resized_image)
 
     # Mostramos la imagen en pantalla
-    plt.imshow(array_out, vmin=0, vmax=1)
+    print('Zoom out bilineal')
+    plt.imshow(resized_image, vmin=0, vmax=1)
     plt.show()
 
 
