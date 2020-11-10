@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 def analitica(x):
-    return 1 / 36 * math.e ** (-2 * x) * (-16 + 63 * math.e ** x + math.e ** (3 * x) * (-11 + 6 * x))
+    return (1 / 36) * (math.exp(-2 * x)) * (-16 + 63 * (math.exp(x)) + (math.exp(3 * x)) * (-11 + 6 * x))
 
 
 def dydx(y, z, w, x):
@@ -106,36 +106,46 @@ def adams_bashforth_moulton(x0, y0, y1, y2, y3, y4, z0, z1, z2, z3, z4, w0, w1, 
         w4 = valW5
         y4, z4, w4 = adams_moulton(x0, y0, y1, y2, y3, y4, z0, z1, z2, z3, z4, w0, w1, w2, w3, w4,
                                    h, corrections, dydx, dzdx, dwdx)
-    return x0 + 4 * h, y4, z4, w4
+    return x0 + 4 * h, y4
 
 
-def predictor_corrector(f, g, e, x0, y0, z0, a, b, h, x_limit):
-    runge = runge_kutta_system(f, g, e, x0, y0, z0, a, b, h)
+def predictor_corrector(f, g, e, y0, z0, w0, x0, h, x_limit, corrections):
+    b = 4 * h + x0
+    runge = runge_kutta_system(f, g, e, y0, z0, w0, x0, b, h)
     n = len(runge[0])
     i = int((x_limit - b) / h)
 
-    bashforth = adams_bashforth_moulton(runge[0][n - 5], runge[1][n - 5], runge[1][n - 4], runge[1][n - 3],
-                                        runge[1][n - 2],
-                                        runge[1][n - 1], runge[2][n - 5],
-                                        runge[2][n - 4], runge[2][n - 3], runge[2][n - 2], runge[2][n - 1],
-                                        runge[3][n - 5],
-                                        runge[3][n - 4], runge[3][n - 3],
-                                        runge[3][n - 2], runge[3][n - 1], h, i, 100)
-    return bashforth
+    bashforthMoultonResult = adams_bashforth_moulton(runge[0][n - 5], runge[1][n - 5], runge[1][n - 4], runge[1][n - 3],
+                                                     runge[1][n - 2],
+                                                     runge[1][n - 1], runge[2][n - 5],
+                                                     runge[2][n - 4], runge[2][n - 3], runge[2][n - 2], runge[2][n - 1],
+                                                     runge[3][n - 5],
+                                                     runge[3][n - 4], runge[3][n - 3],
+                                                     runge[3][n - 2], runge[3][n - 1], h, i, corrections)
+    return bashforthMoultonResult
 
 
-print(predictor_corrector(dydx, dzdx, dwdx, 1, -1, 0, 0, 0.004, 0.001, 1))
+# print(predictor_corrector(dydx, dzdx, dwdx, 1, -1, 0, 0, 0.001, 1, 100))
+hArray = [0.01, 0.05, 0.1]
+errores = []
+for h in hArray:
+    xArray = [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3]
+    yPredict = []
+    yAnalitica = []
+    for i in range(len(xArray)):
+        pred = predictor_corrector(dydx, dzdx, dwdx, 1, -1, 0, 0, h, xArray[i], 100)
+        yPredict.append(pred[1])
+        yAnalitica.append(analitica(xArray[i]))
+    print("Con h: "+str(h))
+    print("Con Método Predictor-Corrector")
+    plt.plot(xArray, yPredict)
+    plt.show()
+    print("Con Solución Analítica")
+    plt.plot(xArray, yAnalitica)
+    plt.show()
+    error = np.subtract(yAnalitica , yPredict)
+    errores.append(error)
 
-# xArray = [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3]
-# yPredict = []
-# yAnalitica = []
-# for i in range(len(xArray)):
-#     yPredict[i] = predictor_corrector(dzdx, dwdx, dydx, 1, -1, 0, 0, 0.4, 0.1, 1)
-#     yAnalitica[i] = analitica(i)
-# print("Con Método Predictor-Corrector")
-# plt.plot(xArray, yPredict)
-# print("Con Solución Analítica")
-# plt.plot(xArray, yAnalitica)
 #
 # error = yAnalitica - yPredict
 # print(error)
